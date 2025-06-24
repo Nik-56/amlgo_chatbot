@@ -1,0 +1,7 @@
+PyMuPDF
+spacy
+google-genai
+google
+dotenv
+google.generativeai
+pinecone
