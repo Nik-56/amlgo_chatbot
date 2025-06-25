@@ -1,5 +1,7 @@
 import streamlit as st
 from agents import GaurdAgent, DetailsAgent
+import time
+
 
 # Initialize session state
 if "messages" not in st.session_state:
@@ -51,10 +53,28 @@ if st.button("Send") and user_input.strip():
         })
     else:
         response_dict, source_knowledge = st.session_state.details_agent.get_response(st.session_state.messages)
+
+        container = st.empty()
+        stream_text = ""
+
+        # Simulate streaming output char by char
+        for char in response_dict.get("content", ""):
+            stream_text += char
+            container.write(f"{response_dict.get('role', 'assistant').capitalize()}: {stream_text}")
+            time.sleep(0.015)  # slightly slower for smooth typewriter effect
+
+        container.write(f"{response_dict.get('role', 'assistant').capitalize()}: {stream_text.strip()}")
+
+        if st.session_state.show_sources and source_knowledge:
+            st.markdown(
+                f"<div style='font-size: 0.9em; color: gray;'>🔍 <strong>Source:</strong> {source_knowledge}</div>",
+                unsafe_allow_html=True
+            )
+
         st.session_state.messages.append({
             "role": response_dict.get("role", "assistant"),
-            "content": response_dict.get("content", ""),
+            "content": stream_text.strip(),
             "source_knowledge": source_knowledge
         })
 
-    st.rerun()
+        st.rerun()
